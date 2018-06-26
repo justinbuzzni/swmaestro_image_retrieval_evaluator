@@ -21,7 +21,9 @@ for each in glob("/home/maestro_2018/test/img/query/*"):
         dist = cosine(res18_img_feature_dict[fname], res18_img_feature_dict[fname2])
         score_dict[fname2] = dist
     sorted_list = sorted(score_dict.items(), key=lambda (k,v):(v,k), reverse=False)
-      
+    qid = fname.split("_")[-1].split(".")[0]
+    system_result_dict[qid] = map(lambda i : i[0], sorted_list[:10])
+          
 name = 'buzzni-200'
 nickname = 'buzzni-200'
 r = requests.post('http://115.68.223.177:31001', json={"pred_result": system_result_dict,'name':name, 'nickname':nickname})
