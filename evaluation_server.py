@@ -6,13 +6,13 @@ from random import sample
 from glob import glob
 
 from sklearn.externals import joblib
-from flask import Flask, request, jsonify
-from flask import request
+from flask import Flask, request, jsonify, render_template, request
 from flask_restful import Api
 from flask_restful import Resource
 from flasgger import Swagger
 import pyltr
-from pymongo import MongoClient
+from pymongo import MongoClient, DESCENDING
+import pandas as pd
 import pendulum
 
 import config
@@ -147,6 +147,19 @@ def evaluation():
     add_score_data(name=name, nickname=nickname, score=score)
     return jsonify(result)
 
+
+@app.route("/leader_board")
+def show_leader_board():
+
+    score_list = []
+    rank = 1
+    for each in score_db.find().sort([("score", DESCENDING)]):
+        score_list.append({'rank': rank, 'name': each['nickname'], 'score': each['score']})
+        rank += 1
+    data = pd.DataFrame(score_list)
+    data.set_index(['name'], inplace=True)
+    data.index.name = None
+    return render_template('leader_board.html', tables=[data.to_html()], titles=['na', 'Leader Board'])
 
 if __name__ == '__main__':
     # test()
